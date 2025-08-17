@@ -24,9 +24,9 @@
     "multer": "^1.4.5-lts.1",
     "multer-storage-cloudinary": "^4.0.0",
     "razorpay": "^2.9.4",
+    "resend": "^3.3.0",
     "stripe": "^16.2.0",
-    "uuid": "^9.0.1",
-    "resend": "^3.3.0"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"

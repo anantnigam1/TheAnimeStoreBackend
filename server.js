@@ -15,6 +15,15 @@ import wishlistRoutes from './src/routes/wishlist.js'
 
 const app = express()
 app.use(helmet())
+app.use(cors({
+  origin: [
+    "https://the-anime-store-iota.vercel.app",
+    "https://the-anime-store-anant-nigams-projects.vercel.app",
+    process.env.CLIENT_URL || "http://localhost:3000",
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true, // if you need cookies/sessions
+}));
 app.use(cors({ origin: process.env.CORS_ORIGIN?.split(',') || '*', credentials: true }))
 app.use(express.json({ limit: '2mb' }))
 app.use(morgan('dev'))
