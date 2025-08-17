@@ -1,0 +1,7 @@
+import { stripe, razorpay } from '../utils/payments.js'
+import crypto from 'crypto'
+export const stripeCheckout=async(req,res)=>{ if(!stripe) return res.status(500).json({message:'Stripe not configured'}); const { items, successUrl, cancelUrl }=req.body; const line_items=items.map(i=>({ price_data:{ currency:'inr', product_data:{ name:i.title }, unit_amount:Math.round(i.price*100) }, quantity:i.qty })); const s=await stripe.checkout.sessions.create({ mode:'payment', line_items, success_url:successUrl, cancel_url:cancelUrl }); res.json({ id:s.id, url:s.url }) }
+export const expressRaw=(req,res,next)=>{ next() } // placeholder, raw body should be configured in server if needed
+export const stripeWebhook=async(req,res)=>{ res.json({received:true}) }
+export const razorpayOrder=async(req,res)=>{ if(!razorpay) return res.status(500).json({message:'Razorpay not configured'}); const { amount, currency='INR', receipt }=req.body; const o=await razorpay.orders.create({ amount:Math.round(amount*100), currency, receipt:receipt||('rcpt_'+Date.now()) }); res.json(o) }
+export const razorpayVerify=async(req,res)=>{ const { razorpay_order_id, razorpay_payment_id, razorpay_signature }=req.body; const body=razorpay_order_id+'|'+razorpay_payment_id; const expected=crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET).update(body).digest('hex'); res.json({ valid: expected===razorpay_signature }) }

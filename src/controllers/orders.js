@@ -1,0 +1,7 @@
+import Order from '../models/Order.js'
+import Product from '../models/Product.js'
+import { sendEmail } from '../utils/mailer.js'
+export const createOrder=async(req,res)=>{ const {items,shipping,payment}=req.body; const ids=items.map(i=>i.productId); const products=await Product.find({_id:{$in:ids}}); const map=Object.fromEntries(products.map(p=>[p._id.toString(),p])); const orderItems=items.map(i=>({ product:map[i.productId]._id, title:map[i.productId].title, price:map[i.productId].price, qty:i.qty, thumbnail:map[i.productId].thumbnail })); const total=orderItems.reduce((s,i)=>s+i.price*i.qty,0); const order=await Order.create({ user:req.user._id, items:orderItems, shipping, payment:payment||{method:'card',status:'pending'}, total }); try{ await sendEmail({ to:req.user.email, subject:'Order placed', html:`<h2>Thanks!</h2><p>Order ${order._id} created.</p>` }) }catch{} res.status(201).json(order) }
+export const myOrders=async(req,res)=> res.json(await Order.find({ user:req.user._id }).sort({createdAt:-1}))
+export const getOrder=async(req,res)=>{ const o=await Order.findById(req.params.id); if(!o) return res.status(404).json({message:'Not found'}); if(!o.user.equals(req.user._id)&&!req.user.isAdmin) return res.status(403).json({message:'Forbidden'}); res.json(o) }
+export const updateOrderStatus=async(req,res)=> res.json(await Order.findByIdAndUpdate(req.params.id, req.body, { new:true }))

@@ -1,0 +1,2 @@
+import Product from '../models/Product.js'
+export const addReview=async(req,res)=>{ const { rating, comment }=req.body; const p=await Product.findById(req.params.productId); if(!p) return res.status(404).json({message:'Not found'}); p.reviews.push({ user:req.user._id, rating, comment }); p.reviewCount=p.reviews.length; p.rating=p.reviews.reduce((s,r)=>s+r.rating,0)/p.reviewCount; await p.save(); res.status(201).json(p) }
